@@ -110,6 +110,7 @@ export default function SignUpForm() {
         label="Password"
         name="password"
         type="password"
+        autoComplete="off"
         placeholder="Password"
         value={formData.password}
         onChange={handleChange}

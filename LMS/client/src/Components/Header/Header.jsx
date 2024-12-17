@@ -1,16 +1,103 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { faBell, faCartPlus, faHeart, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { Link, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
+export const useTokenExpiration = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const timeToExpire = decoded.exp * 1000 - Date.now();
+
+        if (timeToExpire > 0) {
+          // Set timeout to log out the user once the token expires
+          const logoutTimeout = setTimeout(() => {
+            alert("Out of time, please sign in again.");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            navigate("/signin");
+            window.location.reload('/signin');
+            
+          }, timeToExpire);
+          console.log(timeToExpire);
+          return () => clearTimeout(logoutTimeout); // Cleanup timeout on unmount
+        } else {
+          // Token already expired, log out immediately
+          alert("Session expired, please sign in again.");
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("user");
+          navigate("/signin");
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        alert("Invalid session, please sign in again.");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        navigate("/signin");
+      }
+    } else {
+
+      navigate(); // If no token, navigate to sign-in
+    }
+  }, [navigate]);
+};
 export default function Header() {
+  useTokenExpiration();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userAvatar, setUserAvatar] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Handle search input change
+  useEffect(() => {
+    // Check if the user is logged in by checking local storage or context
+    const authToken = localStorage.getItem("authToken");
+    if (authToken) {
+      setIsLoggedIn(true);
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user && user.avatar) {
+        setUserAvatar(user.avatar);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // Close the dropdown when clicking outside of it
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.avatar-dropdown')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    // Implement search functionality or filtering logic here
     console.log("Searching for:", e.target.value);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    navigate("/signin");
+    // Optionally reload the page to reset state
+    window.location.reload();
+  };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
   };
 
   return (
@@ -46,17 +133,65 @@ export default function Header() {
           </form>
         </div>
         
-        {/* Sign-in/Sign-up Section */}
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4 w-full">
-            <Link to="/signin">
-              <button className="border border-gray-300 p-2">Sign in</button>
-            </Link>
-            <Link to="/signup">
-              <button className="border bg-emerald-800 text-white p-2">Sign up</button>
-            </Link>
-          </div>
+        {/* User Section: Conditionally render based on logged in status */}
+        <div className="flex justify-between items-center ">
+  {isLoggedIn ? (
+    <div className="flex items-center space-x-8 w-full justify-end">
+      {/* Wishlist */}
+      <Link to="/wishlist">
+        <FontAwesomeIcon icon={faHeart} className="text-3xl" />
+      </Link>
+
+      {/* Cart */}
+      <Link to="/cart">
+        <FontAwesomeIcon icon={faCartPlus} className="text-3xl" />
+      </Link>
+
+      {/* Notifications */}
+      <Link to="/notifications">
+        <FontAwesomeIcon icon={faBell} className="text-3xl" />
+      </Link>
+
+      {/* Avatar with Dropdown */}
+      <div className="relative avatar-dropdown">
+        <div
+          className="w-12 h-12 rounded-full overflow-hidden border cursor-pointer"
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+        >
+          <img src={userAvatar || '/b1.png'} alt="User Avatar" className="w-full h-full object-cover" />
         </div>
+
+        {/* Dropdown Menu */}
+        {dropdownOpen && (
+          <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg border">
+            <button
+              className="w-full text-left p-2 hover:bg-gray-200"
+              onClick={handleProfileClick}
+            >
+              Profile
+            </button>
+            <button
+              className="w-full text-left p-2 hover:bg-gray-200"
+              onClick={handleSignOut}
+            >
+              Sign out
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  ) : (
+    <div className="flex space-x-4 w-full justify-end">
+      <Link to="/signin">
+        <button className="border border-gray-300 p-2">Sign in</button>
+      </Link>
+      <Link to="/signup">
+        <button className="border bg-emerald-800 text-white p-2">Sign up</button>
+      </Link>
+    </div>
+  )}
+</div>
+
       </div>
     </div>
   );

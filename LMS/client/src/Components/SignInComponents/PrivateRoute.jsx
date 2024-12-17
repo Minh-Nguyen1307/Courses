@@ -1,19 +1,35 @@
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
-const PrivateRoute = ({ allowedRoles }) => {
-  // Retrieve token and user details from localStorage
+const PrivateRoute = ({ allowedRoles, element, ...props }) => {
+  const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
-  const user = JSON.parse(localStorage.getItem("user"));
 
-  // Check if the user is authenticated and has the required role
-  if (!token || !user || !allowedRoles.includes(user.role)) {
-    // Redirect unauthorized users to the SignIn page
-    return <Navigate to="/signin" replace />;
+  if (!token) {
+    // If no token, redirect to sign-in page
+    navigate("/signin");
+    return null;  // Prevent rendering any element
   }
 
-  // Render the child components if authorized
-  return <Outlet />;
+  try {
+    // Decode the token to get the user role
+    const decoded = jwtDecode(token);
+    const userRole = decoded.role;
+
+    if (allowedRoles.includes(userRole)) {
+      // If the user's role matches the allowed roles, render the component
+      return element; // Render the component passed as 'element' prop
+    } else {
+      // If the user doesn't have the correct role, redirect to a forbidden or error page
+      navigate("/forbidden");
+      return null;  // Prevent rendering any element
+    }
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    // If error decoding token, redirect to sign-in
+    navigate("/signin");
+    return null;  // Prevent rendering any element
+  }
 };
 
 export default PrivateRoute;

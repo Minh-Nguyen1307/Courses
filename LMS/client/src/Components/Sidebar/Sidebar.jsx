@@ -82,7 +82,7 @@ export default function Sidebar() {
                   : "text-white hover:font-bold hover:text-black"
               }`}
             >
-              <FontAwesomeIcon icon={faLandmark} className="mr-3" />
+              <FontAwesomeIcon icon={faLandmark} className="mr-3 " />
               Revenue
             </Link>
           </li>
@@ -110,7 +110,7 @@ export default function Sidebar() {
   
   
   <div
-    className="text-left text-white hover:font-bold focus:outline-none font-bold cursor-pointer"
+    className="text-left text-white hover:font-extrabold  focus:outline-none font-normal cursor-pointer "
     onClick={handleSignOut}
   >
     Sign out

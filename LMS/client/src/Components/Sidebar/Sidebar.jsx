@@ -1,10 +1,25 @@
 import { faBookOpen, faBookOpenReader, faGear, faLandmark, faMessage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
+  const navigate = useNavigate(); // For redirecting the user
   const location = useLocation();
+
+  // Fetch user avatar from localStorage or use a default image
+  const userAvatar = localStorage.getItem("userAvatar") || '/b1.png';
+
+  // Function to handle sign out
+  const handleSignOut = () => {
+    // Remove authToken from localStorage to log out the user
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    
+    // Redirect the user to the sign-in page
+    navigate("/signin");
+  };
+
   return (
     <div className="h-screen bg-gray-900 flex flex-col justify-between p-6 w-full">
       <div>
@@ -14,7 +29,7 @@ export default function Sidebar() {
           </Link>
         </div>
         <div className="my-10 px-4">
-          <Link to="/admin-dashboard" className="text-3xl text-white font-bold mb-4 block"> 
+          <Link to="/admin-dashboard" className="text-3xl text-white font-bold mb-4 block text-center"> 
             Dashboard
           </Link>
         </div>
@@ -86,14 +101,22 @@ export default function Sidebar() {
           </li>
         </ul>
       </div>
-      <div>
-        <button
-          className="text-white hover:text-red-900 focus:outline-none w-full text-left hover:font-extrabold px-4"
-          onClick={() => {}}
-        >
-          Sign out
-        </button>
-      </div>
+
+      <div className="flex flex-col items-center space-y-3 mb-4">
+  {/* Avatar image */}
+  <div className="w-12 h-12 rounded-full overflow-hidden border cursor-pointer">
+    <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" />
+  </div>
+  
+  
+  <div
+    className="text-left text-white hover:font-bold focus:outline-none font-bold cursor-pointer"
+    onClick={handleSignOut}
+  >
+    Sign out
+  </div>
+</div>
+
     </div>
   );
 }

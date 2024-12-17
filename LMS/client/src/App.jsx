@@ -39,14 +39,16 @@ function App() {
         <Route path="/forbidden" element={<Forbidden />} />
 
         {/* Protected Routes for Admin */}
-        <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin-dashboard" element={<DashboardLayout />} />
-          <Route path="/admin-dashboard/clients" element={<ClientsDashboard />} />
-          <Route path="/admin-dashboard/coursesdashboard" element={<CoursesDashboard />} />
-          <Route path="/admin-dashboard/coursesdashboard/uploadCourses" element={<UploadCourseForm />} />
-          <Route path="/admin-dashboard/communication" element={<CommunicationDashboard />} />
-          <Route path="/admin-dashboard/revenue" element={<RevenueDashboard />} />
-          <Route path="/admin-dashboard/setting" element={<SettingDashboard />} />
+        <Route
+          path="/admin-dashboard/*"
+          element={<PrivateRoute allowedRoles={["admin"]} element={<DashboardLayout />} />}
+        >
+          <Route path="clients" element={<ClientsDashboard />} />
+          <Route path="courses" element={<CoursesDashboard />} />
+          <Route path="courses/upload" element={<UploadCourseForm />} />
+          <Route path="communication" element={<CommunicationDashboard />} />
+          <Route path="revenue" element={<RevenueDashboard />} />
+          <Route path="settings" element={<SettingDashboard />} />
         </Route>
 
         {/* Protected Routes for User and Admin */}

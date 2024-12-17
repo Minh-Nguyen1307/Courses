@@ -1,35 +1,56 @@
-import { jwtDecode } from 'jwt-decode';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-const PrivateRoute = ({ allowedRoles, element, ...props }) => {
+const PrivateRoute = ({ element }) => {
+  const [isAuthorized, setIsAuthorized] = useState(null); // Tracks authorization state
+  const [isLoading, setIsLoading] = useState(true); // Tracks loading state
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
 
-  if (!token) {
-    // If no token, redirect to sign-in page
-    navigate("/signin");
-    return null;  // Prevent rendering any element
-  }
-
-  try {
-    // Decode the token to get the user role
-    const decoded = jwtDecode(token);
-    const userRole = decoded.role;
-
-    if (allowedRoles.includes(userRole)) {
-      // If the user's role matches the allowed roles, render the component
-      return element; // Render the component passed as 'element' prop
-    } else {
-      // If the user doesn't have the correct role, redirect to a forbidden or error page
-      navigate("/forbidden");
-      return null;  // Prevent rendering any element
+  useEffect(() => {
+    if (!token) {
+      // If no token, redirect to sign-in page
+      navigate("/signin");
+      setIsLoading(false);
+      return;
     }
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    // If error decoding token, redirect to sign-in
-    navigate("/signin");
-    return null;  // Prevent rendering any element
+
+    try {
+      // Decode the token to get the user role
+      const decoded = jwtDecode(token);
+      const userRole = decoded.role;
+
+      // If the user is an admin, allow access to the dashboard
+      if (userRole === "admin") {
+        setIsAuthorized(true);
+      } else {
+        // If the user is not an admin, redirect to a forbidden page
+        navigate("/forbidden");
+        setIsAuthorized(false);
+      }
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      // If error decoding token, redirect to sign-in
+      navigate("/signin");
+      setIsAuthorized(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, navigate]);
+
+  if (isLoading) {
+    // While loading, return null or a loading spinner
+    return null;
   }
+
+  if (!isAuthorized) {
+    // If not authorized, do not render the element
+    return null;
+  }
+
+  // If the user is authorized, render the protected component (admin dashboard)
+  return element;
 };
 
 export default PrivateRoute;

@@ -19,10 +19,7 @@ export const createCourse = async (req, res) => {
       category,
       rating,
       numRatings,
-      video,
-      description,
       author,
-      duration,
       level,
       prerequisites,
       tags,
@@ -54,9 +51,7 @@ export const createCourse = async (req, res) => {
       category,
       rating,
       numRatings,
-      description,
       author,
-      duration,
       level,
       prerequisites,
       tags,
@@ -65,7 +60,6 @@ export const createCourse = async (req, res) => {
       certification,
       chapters: JSON.parse(chapters), // Parse chapters if sent as a JSON string
       image: imageUpload.secure_url, // Use the secure Cloudinary URL
-      video,
     });
 
     // Save the course to the database
@@ -76,9 +70,11 @@ export const createCourse = async (req, res) => {
     // if (req.files.video) fs.unlinkSync(req.files.video[0].path);
 
     // Return the saved course
-    res
-      .status(200)
-      .json({ message: "Course uploaded successfully",courseId: savedCourse._id, savedCourse });
+    res.status(200).json({
+      message: "Course uploaded successfully",
+      courseId: savedCourse._id,
+      savedCourse,
+    });
   } catch (err) {
     res.status(500).json({ message: "Error uploading course", error: err });
   }

@@ -1,24 +1,21 @@
-import React, { useState } from 'react'; 
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 function UploadCourseForm() {
   const [courseData, setCourseData] = useState({
-    nameCourse: '',
-    price: '',
-    category: '',
-    rating: '',
-    numRatings: '',
-    video: '',
-    description: '',
+    nameCourse: "",
+    price: "",
+    category: "",
+    rating: "",
+    numRatings: "",
     image: null,
-    author: '',
-    duration: '',
-    level: '',
-    prerequisites: '',
-    tags: '',
-    discount: '',
-    enrollmentCount: '',
-    certification: '',
+    author: "",
+    level: "Beginner", // Default value set to "Beginner"
+    prerequisites: "None", // Default value set to "None"
+    tags: "",
+    discount: "",
+    enrollmentCount: 0, // Default value set to 0
+    certification: false, // Default value set to false
     chapters: [
       {
         title: "",
@@ -26,7 +23,9 @@ function UploadCourseForm() {
         duration: "",
         objectives: "",
         resources: "",
-      }
+        video: "",
+        description: "",
+      },
     ],
     timestamp: new Date(),
   });
@@ -62,7 +61,28 @@ function UploadCourseForm() {
   const handleAddChapter = () => {
     setCourseData((prevData) => ({
       ...prevData,
-      chapters: [...prevData.chapters, { title: "", content: "", duration: "", objectives: "", resources: "" }],
+      chapters: [
+        ...prevData.chapters,
+        {
+          title: "",
+          content: "",
+          duration: "",
+          objectives: "",
+          resources: "",
+          video: "",
+          description: ""
+        },
+      ],
+    }));
+  };
+
+  const handleRemoveChapter = (index) => {
+    const updatedChapters = courseData.chapters.filter(
+      (_, idx) => idx !== index
+    );
+    setCourseData((prevData) => ({
+      ...prevData,
+      chapters: updatedChapters,
     }));
   };
 
@@ -77,19 +97,25 @@ function UploadCourseForm() {
 
     try {
       // Send the form data to the backend API (POST request to upload course)
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/uploadCourses`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Set the content type for file upload
-        },
-      });
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/admins/admin-dashboard/createCourse`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Set the content type for file upload
+          },
+        }
+      );
 
       if (response.status === 200) {
-        alert('Course uploaded successfully');
+        alert("Course uploaded successfully");
         window.location.reload();
       }
     } catch (error) {
-      console.error('Error uploading course:', error);
-      alert('Failed to upload course');
+      console.error("Error uploading course:", error);
+      alert("Failed to upload course");
     }
   };
 
@@ -97,15 +123,18 @@ function UploadCourseForm() {
     <form
       onSubmit={handleSubmit}
       encType="multipart/form-data"
-      className="mx-32 my-10 bg-white shadow-md rounded-md p-3 max-h-screen overflow-y-auto"
+      className="mx-32 py-5 bg-white shadow-md rounded-md p-3 h-screen overflow-y-auto"
     >
-      <h2 className="text-4xl font-bold text-gray-800 mb-10 text-center">Upload Course</h2>
+      <h2 className="text-4xl font-bold text-gray-800 mb-10 text-center">
+        Upload Course
+      </h2>
 
       {/* Form Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Course Name */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Course Name
+          </label>
           <input
             type="text"
             name="nameCourse"
@@ -116,10 +145,10 @@ function UploadCourseForm() {
             required
           />
         </div>
-
-        {/* Author Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Author Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Author Name
+          </label>
           <input
             type="text"
             name="author"
@@ -130,88 +159,17 @@ function UploadCourseForm() {
             required
           />
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Course Name */}
 
-        {/* Chapters */}
-        <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Chapters</label>
-          {courseData.chapters.map((chapter, index) => (
-            <div key={index} className="bg-gray-50 p-4 rounded-md shadow-sm mb-4">
-              <h3 className="text-xl font-semibold mb-2">Chapter {index + 1}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={chapter.title}
-                    onChange={(e) => handleChapterChange(index, e)}
-                    className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Chapter Title"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Duration (in hours)</label>
-                  <input
-                    type="number"
-                    name="duration"
-                    value={chapter.duration}
-                    onChange={(e) => handleChapterChange(index, e)}
-                    className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Duration"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                <textarea
-                  name="content"
-                  value={chapter.content}
-                  onChange={(e) => handleChapterChange(index, e)}
-                  className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter content"
-                  rows="3"
-                ></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Objectives</label>
-                <textarea
-                  name="objectives"
-                  value={chapter.objectives}
-                  onChange={(e) => handleChapterChange(index, e)}
-                  className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter learning objectives"
-                  rows="3"
-                ></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Resources</label>
-                <textarea
-                  name="resources"
-                  value={chapter.resources}
-                  onChange={(e) => handleChapterChange(index, e)}
-                  className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter resources"
-                  rows="3"
-                ></textarea>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddChapter}
-            className="mt-4 text-sm text-blue-600 hover:underline"
-          >
-            Add New Chapter
-          </button>
-        </div>
+        {/* Author Name */}
 
         {/* Price */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Price ($)
+          </label>
           <input
             type="number"
             name="price"
@@ -223,23 +181,27 @@ function UploadCourseForm() {
           />
         </div>
 
-        {/* Category */}
+        {/* Discount */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Discount (%)
+          </label>
           <input
-            type="text"
-            name="category"
-            value={courseData.category}
+            type="number"
+            name="discount"
+            value={courseData.discount}
             onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter course category"
+            placeholder="Enter discount percentage"
             required
           />
         </div>
 
         {/* Rating */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Rating
+          </label>
           <input
             type="number"
             name="rating"
@@ -253,7 +215,9 @@ function UploadCourseForm() {
 
         {/* Number of Ratings */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Ratings</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Number of Ratings
+          </label>
           <input
             type="number"
             name="numRatings"
@@ -265,50 +229,248 @@ function UploadCourseForm() {
           />
         </div>
 
-        {/* Duration */}
+        {/* Image */}
+        {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Duration (in hours)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
           <input
-            type="number"
-            name="duration"
-            value={courseData.duration}
+            type="text"
+            name="category"
+            value={courseData.category}
             onChange={handleInputChange}
             className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter course duration"
+            placeholder="Enter course category"
             required
           />
         </div>
-      </div>
 
-      {/* Video URL */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
-        <input
-          type="text"
-          name="video"
-          value={courseData.video}
-          onChange={handleInputChange}
-          className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter video URL"
-        />
-      </div>
+        {/* Level */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Level
+          </label>
+          <select
+            name="level"
+            value={courseData.level}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
 
-      {/* Description Field */}
-      <div className="mt-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-        <textarea
-          name="description"
-          value={courseData.description}
-          onChange={handleInputChange}
-          className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter course description"
-          rows="6"
-          required
-        ></textarea>
+        {/* Prerequisites */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Prerequisites
+          </label>
+          <input
+            type="text"
+            name="prerequisites"
+            value={courseData.prerequisites}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter prerequisites"
+          />
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Tags
+          </label>
+          <input
+            type="text"
+            name="tags"
+            value={courseData.tags}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter tags (comma separated)"
+          />
+        </div>
+
+        {/* Enrollment Count */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Enrollment Count
+          </label>
+          <input
+            type="number"
+            name="enrollmentCount"
+            value={courseData.enrollmentCount}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter enrollment count"
+          />
+        </div>
+
+        {/* Certification */}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Image
+          </label>
+          <input
+            type="file"
+            name="image"
+            onChange={handleFileChange}
+            accept="image/*"
+            className="w-full border rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Certification
+          </label>
+          <input
+            type="checkbox"
+            name="certification"
+            checked={courseData.certification}
+            onChange={() =>
+              setCourseData((prevData) => ({
+                ...prevData,
+                certification: !prevData.certification,
+              }))
+            }
+            className="w-4 h-4"
+          />
+        </div>
+      </div>
+      {/* Chapters */}
+      <div className="col-span-3 my-3">
+        <label className="block text-xl font-medium text-gray-700 mb-1">
+          Chapters
+        </label>
+        {courseData.chapters.map((chapter, index) => (
+          <div key={index} className="bg-gray-50 p-4 rounded-md shadow-sm mb-4">
+            <div className="flex justify-between">
+              <h3 className="text-xl font-semibold mb-2">
+                Chapter {index + 1}
+              </h3>
+              <button
+                type="button"
+                onClick={() => handleRemoveChapter(index)}
+                className="text-sm mb-2 btn-close"
+              ></button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={chapter.title}
+                  onChange={(e) => handleChapterChange(index, e)}
+                  className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Chapter Title"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 my-1">
+                Content
+              </label>
+              <textarea
+                name="content"
+                value={chapter.content}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter content"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Objectives
+              </label>
+              <textarea
+                name="objectives"
+                value={chapter.objectives}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter learning objectives"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Resources
+              </label>
+              <textarea
+                name="resources"
+                value={chapter.resources}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter resources"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Duration (in hours)
+              </label>
+              <input
+                type="number"
+                name="duration"
+                value={chapter.duration}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter chapter duration"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 my-1">
+                Video URL
+              </label>
+              <input
+                type="text"
+                name="video"
+                value={chapter.video}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter video URL"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 my-1">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={chapter.description}
+                onChange={(e) => handleChapterChange(index, e)}
+                className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter chapter description"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={handleAddChapter}
+          className="mt-2 text-lg text-blue-600 hover:underline"
+        >
+          Add New Chapter
+        </button>
       </div>
 
       {/* Submit Button */}
-      <div className='text-center'>
+      <div className="text-center">
         <button
           type="submit"
           className="w-1/2 text-2xl py-2 mt-6 bg-gray-800 text-white font-medium rounded-md shadow-md hover:bg-gray-900 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"

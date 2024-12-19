@@ -8,7 +8,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 export default function DashboardLayout() {
   return (
     <div className='flex'>
-    <div className="h-screen w-1/6">
+    <div className=" w-1/6">
       <Sidebar />
       
       

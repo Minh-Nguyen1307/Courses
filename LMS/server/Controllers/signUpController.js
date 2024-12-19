@@ -42,7 +42,9 @@ export const checkEmailUser = async (req, res, next) => {
   
       res.status(201).json({
         message: "Registration successful!",
+        userId:newUser._id,
         user: {
+          
             userName: newUser.userName,
             email: newUser.email,
             role: newUser.role,
@@ -87,7 +89,9 @@ export const signUpAdmin = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Admin account created successfully.',
+      userId:newAdmin._id,
       user: {
+        
         userName: newAdmin.userName,
         email: newAdmin.email,
         role: newAdmin.role,

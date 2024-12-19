@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const courseSchema = new mongoose.Schema({
-  nameCourse: { type: String, required: true, trim: true },
+  nameCourse: { type: String,  trim: true },
   price: { type: Number, required: true },
-  category: { type: String, required: true, trim: true },
+  category: { type: String,  trim: true },
   rating: { type: Number, default: 0 },
   numRatings: { type: Number, default: 0 },
 
@@ -22,7 +22,7 @@ const courseSchema = new mongoose.Schema({
   certification: { type: Boolean, default: false },
   chapters: [
     {
-      title: { type: String, required: true, trim: true }, // Tiêu đề của chương
+      title: { type: String,  trim: true }, // Tiêu đề của chương
       content: { type: String, required: true }, // Nội dung của chương
       duration: { type: String, required: true },
       objectives: { type: String, required: true },

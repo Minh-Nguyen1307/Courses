@@ -89,26 +89,31 @@ function UploadCourseForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
+  
     // Append all course data to formData, including the image file
     for (const key in courseData) {
-      formData.append(key, courseData[key]);
+      if (key === 'image') {
+        formData.append(key, courseData[key]);
+      } else if (Array.isArray(courseData[key])) {
+        // If there are nested objects like chapters, handle them accordingly
+        formData.append(key, JSON.stringify(courseData[key]));
+      } else {
+        formData.append(key, courseData[key]);
+      }
     }
-
+  
     try {
-      // Send the form data to the backend API (POST request to upload course)
       const response = await axios.post(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/admins/admin-dashboard/createCourse`,
+        `${import.meta.env.VITE_API_BASE_URL}/admins/admin-dashboard/createCourse`,
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Set the content type for file upload
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         }
       );
-
+  
       if (response.status === 200) {
         alert("Course uploaded successfully");
         window.location.reload();
@@ -118,6 +123,7 @@ function UploadCourseForm() {
       alert("Failed to upload course");
     }
   };
+  
 
   return (
     <form

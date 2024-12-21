@@ -12,7 +12,7 @@ function UploadCourseForm() {
     author: "",
     level: "Beginner", // Default value set to "Beginner"
     prerequisites: "None", // Default value set to "None"
-    tags: "",
+    introduction: "",
     discount: "",
     enrollmentCount: 0, // Default value set to 0
     certification: false, // Default value set to false
@@ -285,19 +285,7 @@ function UploadCourseForm() {
         </div>
 
         {/* Tags */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tags
-          </label>
-          <input
-            type="text"
-            name="tags"
-            value={courseData.tags}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter tags (comma separated)"
-          />
-        </div>
+        
 
         {/* Enrollment Count */}
         <div>
@@ -316,8 +304,11 @@ function UploadCourseForm() {
 
         {/* Certification */}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+       
+      </div>
+      <div className="flex justify-between my-2">
+      <div className="w-5/6 mr-10">
+          <label className="block text-sm font-medium text-gray-700 mb-1 ">
             Image
           </label>
           <input
@@ -329,7 +320,7 @@ function UploadCourseForm() {
             required
           />
         </div>
-        <div>
+        <div className="w-1/6">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Certification
           </label>
@@ -346,7 +337,21 @@ function UploadCourseForm() {
             className="w-4 h-4"
           />
         </div>
-      </div>
+        </div>
+      <div>
+  <label className="block text-xl font-medium text-gray-700 my-3">
+    Introduction
+  </label>
+  <textarea
+    name="introduction"
+    value={courseData.introduction}
+    onChange={handleInputChange}
+    className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+    placeholder="Enter introduction"
+    rows="5" // Set the number of rows for height
+  />
+</div>
+
       {/* Chapters */}
       <div className="col-span-3 my-3">
         <label className="block text-xl font-medium text-gray-700 mb-1">

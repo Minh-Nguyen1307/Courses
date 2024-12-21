@@ -16,7 +16,7 @@ const courseSchema = new mongoose.Schema({
     default: "Beginner",
   },
   prerequisites: { type: String,required: true, default: "None" },
-  tags: [String],
+  introduction: {type: String, required: true},
   discount: { type: Number,required: true, default: 0 },
   enrollmentCount: { type: Number,required: true, default: 0 },
   certification: { type: Boolean,required: true, default: false },

@@ -3,12 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { Navigate, Outlet } from "react-router-dom";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 // AUTH HELPERS: Sign-In Logic
 export const signInUser = async (email, password, navigate, setErrorLogIn) => {
+  
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_API_BASE_URL}/users/signin`,
@@ -21,9 +22,10 @@ export const signInUser = async (email, password, navigate, setErrorLogIn) => {
       // Save token and user data to localStorage
       localStorage.setItem("authToken", token);
       localStorage.setItem("user", JSON.stringify(user));
-
+      localStorage.getItem("userId", JSON.stringify(user));
+      const userId = user.userId;
       // Redirect based on user role
-      user.role === "admin" ? navigate("/admin-dashboard") : window.location.href = '/';
+      user.role === "admin" ? navigate("/admin-dashboard") : window.location.href = `/${userId}`;
     } else {
       setErrorLogIn("Invalid credentials. Please try again.");
     }

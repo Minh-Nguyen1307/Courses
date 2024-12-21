@@ -14,14 +14,14 @@ export const useTokenExpiration = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-
+     // Safely access the userId
+    
     if (token) {
       try {
         const decoded = jwtDecode(token);
         const timeToExpire = decoded.exp * 1000 - Date.now();
 
         if (timeToExpire > 0) {
-          // Set timeout to log out the user once the token expires
           const logoutTimeout = setTimeout(() => {
             alert("Out of time, please sign in again.");
             localStorage.removeItem("authToken");
@@ -29,10 +29,8 @@ export const useTokenExpiration = () => {
             navigate("/signin");
             window.location.reload("/signin");
           }, timeToExpire);
-          console.log(timeToExpire);
           return () => clearTimeout(logoutTimeout); // Cleanup timeout on unmount
         } else {
-          // Token already expired, log out immediately
           alert("Session expired, please sign in again.");
           localStorage.removeItem("authToken");
           localStorage.removeItem("user");
@@ -46,20 +44,21 @@ export const useTokenExpiration = () => {
         navigate("/signin");
       }
     } else {
-      navigate(); // If no token, navigate to sign-in
+      navigate("/signin");
     }
   }, [navigate]);
 };
-export default function Header() {
-  useTokenExpiration();
+
+const Header1 = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userAvatar, setUserAvatar] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));  // Assuming user is saved in localStorage
+  const userId = user?.userId;
 
   useEffect(() => {
-    // Check if the user is logged in by checking local storage or context
     const authToken = localStorage.getItem("authToken");
     if (authToken) {
       setIsLoggedIn(true);
@@ -71,7 +70,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    // Close the dropdown when clicking outside of it
     const handleClickOutside = (event) => {
       if (!event.target.closest(".avatar-dropdown")) {
         setDropdownOpen(false);
@@ -95,32 +93,29 @@ export default function Header() {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     navigate("/signin");
-    // Optionally reload the page to reset state
     window.location.reload();
   };
 
   const handleProfileClick = () => {
     navigate("/profile");
+    
   };
 
   return (
     <div className="bg-slate-50">
       <div className="mx-10 flex justify-between items-center h-20">
-        {/* Logo Section */}
         <div>
-          <Link to="/" className="text-2xl">
+          <Link to={`/${userId}`} className="text-2xl">
             <img src="/Logo1.png" alt="Logo of Byway" className="w-32" />
           </Link>
         </div>
 
-        {/* Courses Link */}
         <div>
-          <Link to="/courses" className="text-2xl">
+          <Link to={`/${userId}/courses`} className="text-2xl">
             Courses
           </Link>
         </div>
 
-        {/* Search Input */}
         <div className="w-1/2">
           <form className="border border-black rounded-lg flex justify-start">
             <button type="button" className="flex items-center">
@@ -139,26 +134,21 @@ export default function Header() {
           </form>
         </div>
 
-        {/* User Section: Conditionally render based on logged in status */}
-        <div className="flex justify-between items-center ">
+        <div className="flex justify-between items-center">
           {isLoggedIn ? (
             <div className="flex items-center space-x-8 w-full justify-end">
-              {/* Wishlist */}
-              <Link to="/wishlist">
+              <Link to={`/${userId}/wishlist`}>
                 <FontAwesomeIcon icon={faHeart} className="text-3xl" />
               </Link>
 
-              {/* Cart */}
-              <Link to="/cart">
+              <Link to={`/${userId}/cart`}>
                 <FontAwesomeIcon icon={faCartPlus} className="text-3xl" />
               </Link>
 
-              {/* Notifications */}
-              <Link to="/notifications">
+              <Link to={`/${userId}/notification`}>
                 <FontAwesomeIcon icon={faBell} className="text-3xl" />
               </Link>
 
-              {/* Avatar with Dropdown */}
               <div className="relative avatar-dropdown">
                 <div
                   className="w-12 h-12 rounded-full overflow-hidden border cursor-pointer"
@@ -171,7 +161,6 @@ export default function Header() {
                   />
                 </div>
 
-                {/* Dropdown Menu */}
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg border">
                     <button
@@ -206,4 +195,6 @@ export default function Header() {
       </div>
     </div>
   );
-}
+};
+
+export default Header1;

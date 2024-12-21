@@ -1,56 +1,155 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+import Breadcrumb from "../../Components/CoursesComponents/CourseArea/Breadcrumb";
+import Filter from "../../Components/CoursesComponents/CourseArea/Filter";
+import CoursesList from "../../Components/CoursesComponents/CourseArea/CoursesList";
 
 const CoursesPage = () => {
   const [courses, setCourses] = useState([]);
+  const [filter, setFilter] = useState({
+    category: "",
+    level: "",
+    sortBy: "",
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+  });
 
-  
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/users/courses`); // Replace with your API endpoint
-        setCourses(response.data);
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/users/courses`, {
+            params: {
+              ...filter, // Include current filters
+              page: pagination.currentPage,
+              limit: 10, // Limit courses per page
+            },
+          }
+        );
+        setCourses(response.data.courses);
+        setPagination({
+          currentPage: response.data.pagination.currentPage,
+          totalPages: response.data.pagination.totalPages,
+        });
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error("Error fetching courses:", error);
       }
     };
+
     fetchCourses();
-  }, []);
+  }, [filter, pagination.currentPage]);
+
+  // Apply filters to the courses
+  const filteredCourses = courses.filter((course) => {
+    if (filter.category && course.category !== filter.category) return false;
+    if (filter.level && course.level !== filter.level) return false;
+    return true;
+  });
+
+  // Sort courses if a sorting option is selected
+  const sortedCourses = filteredCourses.sort((a, b) => {
+    if (filter.sortBy === "price") {
+      return a.price - b.price;
+    } else if (filter.sortBy === "-price") {
+      return b.price - a.price;
+    } else if (filter.sortBy === "rating") {
+      return b.rating - a.rating; 
+    } else if (filter.sortBy === "numRatings") {
+      return b.numRatings - a.numRatings;
+    } else if (filter.sortBy === "discount") {
+      return b.discount - a.discount;
+    } else if (filter.sortBy === "new") {
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    }
+    return 0;
+  });
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      [name]: value,
+    }));
+  };
+
+  const resetFilter = () => {
+    setFilter({
+      category: "",
+      level: "",
+      sortBy: "",
+    });
+  };
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > pagination.totalPages) return; // Prevent out-of-bounds
+    setPagination((prevPagination) => ({
+      ...prevPagination,
+      currentPage: newPage,
+    }));
+  };
 
   return (
     <div className="mx-10">
       <div>
         <Breadcrumb />
       </div>
-      <h2 className="text-2xl font-bold mb-6">Available Courses</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <div key={course._id} className="border rounded-lg overflow-hidden shadow-md">
-            <img
-              src={course.image}
-              alt={course.nameCourse}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-xl font-semibold">{course.nameCourse}</h3>
-              <p className="text-gray-600 mt-2">{course.author}</p>
-              <p className="text-gray-500 text-sm mt-2">Level: {course.level}</p>
-              <p className="text-gray-500 text-sm mt-1">Category: {course.category}</p>
-              <p className="text-gray-600 mt-2">
-                <span className="font-bold">Price: </span>${course.price}
-              </p>
-              <p className="text-gray-500 mt-2">
-                <span className="font-bold">Discount: </span>{course.discount}%
-              </p>
-              <button
-                className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg"
-                onClick={() => alert('Enroll Now!')}
-              >
-                Enroll Now
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="flex justify-around items-start">
+        <div className="w-1/6 pr-5">
+          {/* Filter Section */}
+          <Filter
+            filter={filter}
+            handleFilterChange={handleFilterChange}
+            resetFilter={resetFilter}
+          />
+        </div>
+        <div className="w-5/6">
+          {/* Courses List */}
+          <CoursesList courses={sortedCourses} />
+          
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center space-x-4 my-6">
+  {/* Previous Button */}
+  <button
+    className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
+    onClick={() => handlePageChange(pagination.currentPage - 1)}
+    disabled={pagination.currentPage === 1}
+  >
+    Previous
+  </button>
+
+  {/* Page Numbers */}
+  <div className="flex space-x-2">
+    {Array.from({ length: pagination.totalPages }).map((_, index) => (
+      <button
+        key={index}
+        className={`py-2 px-4 rounded-lg text-sm text-gray-600 
+          ${pagination.currentPage === index + 1
+            ? "bg-gray-600 text-white"
+            : "bg-white hover:bg-blue-200"} 
+          focus:outline-none`}
+        onClick={() => handlePageChange(index + 1)}
+      >
+        {index + 1}
+      </button>
+    ))}
+  </div>
+
+  {/* Next Button */}
+  <button
+    className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
+    onClick={() => handlePageChange(pagination.currentPage + 1)}
+    disabled={pagination.currentPage === pagination.totalPages}
+  >
+    Next
+  </button>
+</div>
+
+
+        </div>
       </div>
     </div>
   );

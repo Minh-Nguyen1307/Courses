@@ -22,7 +22,7 @@ export const createCourse = async (req, res) => {
       author,
       level,
       prerequisites,
-      tags,
+      introduction,
       discount,
       enrollmentCount,
       certification,
@@ -54,7 +54,7 @@ export const createCourse = async (req, res) => {
       author,
       level,
       prerequisites,
-      tags,
+      introduction,
       discount,
       enrollmentCount,
       certification,
@@ -83,7 +83,8 @@ export const createCourse = async (req, res) => {
 // Get all courses with optional filters
 export const getCourses = async (req, res) => {
   try {
-    const { category, level, rating, certification, search, sortBy, limit } = req.query;
+    const { category, level, rating, certification, search, sortBy, page = 1, limit = 10 } = req.query;
+    
     let filter = {};
 
     // Filters
@@ -110,11 +111,24 @@ export const getCourses = async (req, res) => {
       query = query.sort(sortOptions[sortBy] || {}); // Default to no sorting if sortBy is invalid
     }
 
-    // Limiting the results
-    if (limit) query = query.limit(Number(limit));
+    // Pagination
+    const skip = (page - 1) * limit; // Calculate how many courses to skip based on the page number
+    query = query.skip(skip).limit(Number(limit)); // Apply pagination
 
     const courses = await query.exec();
-    res.status(200).json(courses);
+
+    // Get total number of courses for pagination
+    const totalCourses = await CourseModel.countDocuments(filter);
+
+    // Send response with courses and pagination details
+    res.status(200).json({
+      courses,
+      pagination: {
+        currentPage: Number(page),
+        totalPages: Math.ceil(totalCourses / limit),
+        totalCourses,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -123,10 +137,7 @@ export const getCourses = async (req, res) => {
 // Get a single course by ID
 export const getCourseById = async (req, res) => {
   try {
-    const course = await CourseModel.findById(req.params.id).populate(
-      "reviews.user",
-      "name email"
-    );
+    const course = await CourseModel.findById(req.params.id);
     if (!course) {
       return res.status(404).json({ error: "Course not found" });
     }
@@ -198,10 +209,12 @@ export const addReview = async (req, res) => {
   }
 };
 
-// Get featured courses
-export const getFeaturedCourses = async (req, res) => {
+// Get 4 courses
+export const getTopCoursesByEnrollment = async (req, res) => {
   try {
-    const courses = await CourseModel.find({ isFeatured: true }).limit(5);
+    const courses = await CourseModel.find()
+      .sort({ enrollmentCount: -1 })  // Sort by enrollmentCount in descending order
+      .limit(5);  // Limit to 4 courses with highest enrollmentCount
     res.status(200).json(courses);
   } catch (error) {
     res.status(500).json({ error: error.message });

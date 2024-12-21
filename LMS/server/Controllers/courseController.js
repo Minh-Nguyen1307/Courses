@@ -83,19 +83,31 @@ export const createCourse = async (req, res) => {
 // Get all courses with optional filters
 export const getCourses = async (req, res) => {
   try {
-    const { category, level, search, sortBy, limit } = req.query;
+    const { category, level, rating, certification, search, sortBy, limit } = req.query;
     let filter = {};
 
+    // Filters
     if (category) filter.category = category;
     if (level) filter.level = level;
+    if (rating) filter.rating = { $gte: Number(rating) }; // Rating greater than or equal to specified value
+    if (certification) filter.certification = certification === "true"; // Boolean filter for certification
     if (search) filter.nameCourse = { $regex: search, $options: "i" }; // Case-insensitive search
 
     let query = CourseModel.find(filter);
 
     // Sorting
     if (sortBy) {
-      const sortOptions = sortBy === "price" ? { price: 1 } : { price: -1 }; // Example: price ascending or descending
-      query = query.sort(sortOptions);
+      const sortOptions = {
+        price: { price: 1 }, // Ascending by price
+        "-price": { price: -1 }, // Descending by price
+        level: { level: 1 }, // Ascending by level
+        "-level": { level: -1 }, // Descending by level
+        rating: { rating: -1 }, // Descending by rating
+        numRatings: { numRatings: -1 }, // Descending by number of ratings
+        discount: { discount: -1 }, // Descending by discount
+        new: { updatedAt: -1 }, // Descending by most recently updated
+      };
+      query = query.sort(sortOptions[sortBy] || {}); // Default to no sorting if sortBy is invalid
     }
 
     // Limiting the results

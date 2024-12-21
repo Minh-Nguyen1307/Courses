@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
 const courseSchema = new mongoose.Schema({
-  nameCourse: { type: String,  trim: true },
+  nameCourse: { type: String,required: true,  trim: true },
   price: { type: Number, required: true },
-  category: { type: String,  trim: true },
-  rating: { type: Number, default: 0 },
-  numRatings: { type: Number, default: 0 },
+  category: { type: String, required: true, trim: true },
+  rating: { type: Number,required: true, default: 0 },
+  numRatings: { type: Number,required: true, default: 0 },
 
   image: { type: String, required: true },
   author: { type: String, required: true },
@@ -15,14 +15,14 @@ const courseSchema = new mongoose.Schema({
     enum: ["Beginner", "Intermediate", "Advanced"],
     default: "Beginner",
   },
-  prerequisites: { type: String, default: "None" },
+  prerequisites: { type: String,required: true, default: "None" },
   tags: [String],
-  discount: { type: Number, default: 0 },
-  enrollmentCount: { type: Number, default: 0 },
-  certification: { type: Boolean, default: false },
+  discount: { type: Number,required: true, default: 0 },
+  enrollmentCount: { type: Number,required: true, default: 0 },
+  certification: { type: Boolean,required: true, default: false },
   chapters: [
     {
-      title: { type: String,  trim: true }, // Tiêu đề của chương
+      title: { type: String,required: true,  trim: true }, // Tiêu đề của chương
       content: { type: String, required: true }, // Nội dung của chương
       duration: { type: String, required: true },
       objectives: { type: String, required: true },

@@ -7,7 +7,7 @@ const CourseDetailPage = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+const { userId } = useParams();
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -37,10 +37,10 @@ const CourseDetailPage = () => {
         <nav aria-label="breadcrumb" className="text-lg my-5">
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <Link to="/">Home</Link>
+              <Link to={`/${userId}`}>Home</Link>
             </li>
             <li className="breadcrumb-item" aria-current="page">
-              <Link to="/courses">Courses</Link>
+              <Link to={`/${userId}/courses`}>Courses</Link>
             </li>
             <li className="breadcrumb-item active" aria-current="page">
               {course.nameCourse}

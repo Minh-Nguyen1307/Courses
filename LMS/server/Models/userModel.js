@@ -35,13 +35,20 @@ const userSchema = new mongoose.Schema({
   ],
   cart: [
     {
-      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-      quantity: { type: Number, default: 1, min: 1 },
+      courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+      quantity: { type: Number, default: 1, max: 1, min:1 },
       addedAt: { type: Date, default: Date.now },
-    }],
+      PriceBeforeDiscount: { type: Number, default:0},
+      PriceDiscount: { type: Number, default:0},
+      PriceAfterDiscount: { type: Number, default:0},
+    },
+    {totalPrice: { type: Number, default:0}}],
   purchasedCourses: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
   ],
+  
+    
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import "./App.css";
 import HomePage from "./Pages/HomePage/HomePage";
 import SignInPage from "./Pages/SignInPage/SignInPage";
@@ -17,7 +22,7 @@ import SettingDashboard from "./Dashboard/SettingDashboard/SettingDashboard";
 import CoursesDashboard from "./Dashboard/CoursesDashboard/CoursesDashboard.JSX";
 import UploadCourseForm from "./Dashboard/CoursesDashboard/UploadCourseForm/UploadCourseForm.JSX";
 import DashboardLayout from "./Dashboard/DashboardLayout";
-
+import CheckoutPage from "./Pages/CheckoutPage/CheckoutPage";
 
 function App() {
   const location = useLocation(); // Get current location
@@ -35,7 +40,7 @@ function App() {
 
       <Routes>
         {/* Public Routes */}
-        
+
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         {isLoggedIn ? (
@@ -48,7 +53,10 @@ function App() {
         ) : (
           <Route path="/courses/:id" element={<CourseDetailPage />} />
         )}
-         {isLoggedIn && <Route path="/:userId/cart" element={<Cart />} />}
+        {isLoggedIn && <Route path="/:userId/cart" element={<Cart />} />}
+        {isLoggedIn && (
+          <Route path="/:userId/cart/checkout" element={<CheckoutPage />} />
+        )}
 
         {isLoggedIn ? (
           <Route path="/:userId" element={<HomePage />} />
@@ -57,13 +65,15 @@ function App() {
         )}
 
         {/* Dynamic User Route */}
-        
 
         {/* Protected Routes for Admin */}
         <Route
           path="/admin-dashboard/*"
           element={
-            <PrivateRoute allowedRoles={["admin"]} element={<DashboardLayout />} />
+            <PrivateRoute
+              allowedRoles={["admin"]}
+              element={<DashboardLayout />}
+            />
           }
         >
           <Route path="clients" element={<ClientsDashboard />} />

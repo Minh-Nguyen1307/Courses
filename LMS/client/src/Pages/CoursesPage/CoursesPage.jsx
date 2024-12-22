@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-import Breadcrumb from "../../Components/CoursesComponents/CourseArea/Breadcrumb";
 import Filter from "../../Components/CoursesComponents/CourseArea/Filter";
 import CoursesList from "../../Components/CoursesComponents/CourseArea/CoursesList";
+import { Link, useParams } from "react-router-dom";
 
 const CoursesPage = () => {
+  const { userId } = useParams();
   const [courses, setCourses] = useState([]);
   const [filter, setFilter] = useState({
     category: "",
@@ -95,7 +95,21 @@ const CoursesPage = () => {
   return (
     <div className="mx-10">
       <div>
-        <Breadcrumb />
+      <div className="my-4">
+          <p className="text-4xl font-medium">All Courses</p>
+        </div>
+        <div>
+          <nav aria-label="breadcrumb" className="text-lg my-5">
+            <ol className="breadcrumb">
+              <li className="breadcrumb-item">
+                <Link to={`/${userId}`}>Home</Link>
+              </li>
+              <li className="breadcrumb-item active" aria-current="page">
+                Courses
+              </li>
+            </ol>
+          </nav>
+        </div>
       </div>
       <div className="flex justify-around items-start">
         <div className="w-1/6 pr-5">

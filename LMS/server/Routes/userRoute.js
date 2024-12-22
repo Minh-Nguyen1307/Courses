@@ -4,7 +4,8 @@ import { signInUser } from '../Controllers/signInController.js';
 
 import { verifyAdmin } from '../Middleware/verifyAdmin.js';
 import { getCourseById, getCourses, getTopCoursesByEnrollment } from '../Controllers/courseController.js';
-import { addToCart, getCart } from '../Controllers/cartController.js';
+import { addToCart, getCart, removeFromCart} from '../Controllers/cartController.js';
+
 
 
 
@@ -17,5 +18,8 @@ userRouter.get('/courses/:id', getCourseById);
 userRouter.get('/topcourses', getTopCoursesByEnrollment);
 userRouter.post('/:userId/add', addToCart);
 userRouter.get('/:userId/cart', getCart);
+userRouter.delete('/:userId/cart',removeFromCart);
+
+
 
 export default userRouter;

@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     {
       amount: { type: Number, required: true },
       date: { type: Date, default: Date.now },
-      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'course' },
     },
   ],
   notifications: [
@@ -31,12 +31,12 @@ const userSchema = new mongoose.Schema({
     },
   ],
   wishlist: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+    { type: mongoose.Schema.Types.ObjectId, ref: 'course' },
   ],
   cart: [
     {
-      courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-      quantity: { type: Number, default: 1, max: 1, min:1 },
+      courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'course', required: true },
+      quantity: { type: Number, default: 1 },
       addedAt: { type: Date, default: Date.now },
       PriceBeforeDiscount: { type: Number, default:0},
       PriceDiscount: { type: Number, default:0},
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
     },
     {totalPrice: { type: Number, default:0}}],
   purchasedCourses: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+    { type: mongoose.Schema.Types.ObjectId, ref: 'course' },
   ],
   
     

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const CourseCard = () => {
+const CourseCard = (course) => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user')); // Assuming user is saved in localStorage
   const userId = user?.userId;
@@ -57,7 +57,8 @@ const CourseCard = () => {
     }
 
     try {
-      const response = await addToCart(userId, courseId);
+      
+      const response = await addToCart(userId, course._id);
       alert(response.message || "Course added to your cart successfully!");
     } catch (error) {
       if (error?.message === "Course is already in your cart") {

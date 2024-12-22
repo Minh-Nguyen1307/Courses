@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import HomePage from "./Pages/HomePage/HomePage";
@@ -17,29 +17,47 @@ import SettingDashboard from "./Dashboard/SettingDashboard/SettingDashboard";
 import CoursesDashboard from "./Dashboard/CoursesDashboard/CoursesDashboard.JSX";
 import UploadCourseForm from "./Dashboard/CoursesDashboard/UploadCourseForm/UploadCourseForm.JSX";
 import DashboardLayout from "./Dashboard/DashboardLayout";
-import Header1 from "./Components/Header/Header1";
+
 
 function App() {
   const location = useLocation(); // Get current location
   const isAdminDashboard = location.pathname.startsWith("/admin-dashboard");
-  const authToken = localStorage.getItem("authToken");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const authToken = localStorage.getItem("authToken");
+    setIsLoggedIn(!!authToken);
+  }, []);
 
   return (
     <>
       {/* Render the appropriate Header and Footer based on the route */}
-      {isAdminDashboard ? null : authToken ? <Header1 /> : <Header />}
+      {!isAdminDashboard && <Header />}
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
+        
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/:userId/courses" element={<CoursesPage />} />
-        <Route path="//:userId/courses/:id" element={<CourseDetailPage />} />
-        <Route path="/:userId/cart" element={<Cart />} />
+        {isLoggedIn ? (
+          <Route path="/:userId/courses" element={<CoursesPage />} />
+        ) : (
+          <Route path="/courses" element={<CoursesPage />} />
+        )}
+        {isLoggedIn ? (
+          <Route path="/:userId/courses/:id" element={<CourseDetailPage />} />
+        ) : (
+          <Route path="/courses/:id" element={<CourseDetailPage />} />
+        )}
+         {isLoggedIn && <Route path="/:userId/cart" element={<Cart />} />}
+
+        {isLoggedIn ? (
+          <Route path="/:userId" element={<HomePage />} />
+        ) : (
+          <Route path="/" element={<HomePage />} />
+        )}
 
         {/* Dynamic User Route */}
-        <Route path="/:userId" element={<HomePage />} />
+        
 
         {/* Protected Routes for Admin */}
         <Route
@@ -58,7 +76,7 @@ function App() {
       </Routes>
 
       {/* Render Footer for non-admin routes */}
-      {isAdminDashboard ? null : <Footer />}
+      {!isAdminDashboard && <Footer />}
     </>
   );
 }

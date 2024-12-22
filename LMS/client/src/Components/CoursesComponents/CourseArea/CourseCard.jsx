@@ -1,6 +1,6 @@
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,6 +9,11 @@ const CourseCard = ({ course }) => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));  // Assuming user is saved in localStorage
   const userId = user?.userId;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+      const authToken = localStorage.getItem("authToken");
+      setIsLoggedIn(!!authToken);
+    }, []);
 
   // Check if the user is authenticated
   const isAuthenticated = () => {
@@ -69,11 +74,13 @@ const CourseCard = ({ course }) => {
       />
 
       {/* Course Title */}
-      <Link to={`/${userId}/courses/${course._id}`}>
-        <p className="pt-2 mx-0.5 text-xl font-semibold text-center text-gray-800 hover:text-green-800 transition-colors duration-200 cursor-pointer">
-          {course.nameCourse}
-        </p>
-      </Link>
+      <Link
+  to={isLoggedIn ? `/${userId}/courses/${course._id}` : `/courses/${course._id}`}
+>
+  <p className="pt-2 mx-0.5 text-xl font-semibold text-center text-gray-800 hover:text-green-800 transition-colors duration-200 cursor-pointer">
+    {course.nameCourse}
+  </p>
+</Link>
 
       <div className="px-6 pb-2">
         {/* Author */}

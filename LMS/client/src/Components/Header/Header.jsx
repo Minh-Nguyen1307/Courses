@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBell,
-  faCartPlus,
-  faHeart,
-  faMagnifyingGlass,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBell, faCartPlus, faHeart,  faMagnifyingGlass,} from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
@@ -55,6 +50,7 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userAvatar, setUserAvatar] = useState("");
+  const [userId, setUserId] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -64,8 +60,9 @@ export default function Header() {
     if (authToken) {
       setIsLoggedIn(true);
       const user = JSON.parse(localStorage.getItem("user"));
-      if (user && user.avatar) {
-        setUserAvatar(user.avatar);
+      if (user) {
+        setUserId(user.userId);
+        setUserAvatar(user.avatar || "");
       }
     }
   }, []);
@@ -100,7 +97,7 @@ export default function Header() {
   };
 
   const handleProfileClick = () => {
-    navigate("/profile");
+    navigate(`/${userId}/profile`);
   };
 
   return (
@@ -108,14 +105,14 @@ export default function Header() {
       <div className="mx-10 flex justify-between items-center h-20">
         {/* Logo Section */}
         <div>
-          <Link to="/" className="text-2xl">
+        <Link to={isLoggedIn ? `/${userId}` : "/"} className="text-2xl">
             <img src="/Logo1.png" alt="Logo of Byway" className="w-32" />
           </Link>
         </div>
 
         {/* Courses Link */}
         <div>
-          <Link to="/courses" className="text-2xl">
+        <Link to={isLoggedIn ? `/${userId}/courses` : "/courses"} className="text-2xl">
             Courses
           </Link>
         </div>
@@ -144,17 +141,17 @@ export default function Header() {
           {isLoggedIn ? (
             <div className="flex items-center space-x-8 w-full justify-end">
               {/* Wishlist */}
-              <Link to="/wishlist">
+              <Link to={`/${userId}/wishlist`}>
                 <FontAwesomeIcon icon={faHeart} className="text-3xl" />
               </Link>
 
               {/* Cart */}
-              <Link to="/cart">
+              <Link to={`/${userId}/cart`}>
                 <FontAwesomeIcon icon={faCartPlus} className="text-3xl" />
               </Link>
 
               {/* Notifications */}
-              <Link to="/notifications">
+              <Link to={`/${userId}/notification`}>
                 <FontAwesomeIcon icon={faBell} className="text-3xl" />
               </Link>
 
